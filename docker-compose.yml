@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  php:
+    image: php:8.2-fpm
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php-coasters
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - redis
+  nginx:
+    image: nginx:latest
+    container_name: nginx-coasters
+    volumes:
+      - .:/var/www/html
+      - ./nginx.conf:/etc/nginx/nginx.conf  # Change to a valid Nginx config file location
+    ports:
+      - "8080:80"
+    depends_on:
+      - php
+  redis:
+    image: redis:alpine
+    container_name: redis-coasters
+    ports:
+      - "6379:6379"
