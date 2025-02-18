@@ -119,6 +119,7 @@ class Cache extends BaseConfig
         'port'     => 6379,
         'timeout'  => 0,
         'database' => 0,
+        'client'   => 'predis', // Specify Predis as the client
     ];
 
     /**

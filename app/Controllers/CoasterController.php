@@ -16,9 +16,10 @@ class CoasterController extends ResourceController
 
     public function getCoasters()
     {
-        $coasters = $this->coasterModel->findAll();
+        $coasters = $this->coasterModel->getCoasters();
         return $this->respond($coasters);
     }
+
 
 
     public function createCoaster()
