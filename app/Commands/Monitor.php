@@ -34,14 +34,16 @@ class Monitor extends BaseCommand
                         CLI::write("Coaster: " . $coasterKey, 'green');
 
                         // Output data available in the JSON
-                        CLI::write("  - Name: " . $coaster['name']);
-                        CLI::write("  - Height: " . $coaster['height']);
-                        CLI::write("  - Speed: " . $coaster['speed']);
-                        CLI::write("  - Location: " . $coaster['location']);
+//                        CLI::write("  - Name: " . $coaster['name']);
+//                        CLI::write("  - Height: " . $coaster['height']);
+//                        CLI::write("  - Speed: " . $coaster['speed']);
+//                        CLI::write("  - Location: " . $coaster['location']);
 
-                        // If additional fields like 'liczba_personelu' and 'liczba_klientow' are not present
-                        CLI::write("  - Staff: Not available", 'red');
-                        CLI::write("  - Daily Clients: Not available", 'red');
+                        // Now output the new fields
+                        CLI::write("  - Staff: " . ($coaster['liczba_personelu'] ?? 'Not available'));
+                        CLI::write("  - Daily Clients: " . ($coaster['liczba_klientow'] ?? 'Not available'));
+                        CLI::write("  - Track Length: " . ($coaster['dl_trasy'] ?? 'Not available'));
+                        CLI::write("  - Open Hours: " . ($coaster['godziny_od'] ?? 'Not available') . " - " . ($coaster['godziny_do'] ?? 'Not available'));
 
                         CLI::write("  - Status: OK\n", 'green');
                     } else {

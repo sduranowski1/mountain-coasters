@@ -86,4 +86,76 @@ class CoasterModel extends Model
     {
         $this->redis->del("coaster:$coasterId");
     }
+
+// ----- Wagons methods -----
+
+    // Add a wagon to a coaster
+    public function addWagon($coasterId)
+    {
+        $data = $this->request->getJSON(true);
+
+        if (!isset($data['ilosc_miejsc']) || !isset($data['predkosc_wagonu'])) {
+            return $this->failValidationError('Both "ilosc_miejsc" and "predkosc_wagonu" are required.');
+        }
+
+        // You can retrieve the coaster from Redis here and ensure the data is added correctly
+        $wagonId = uniqid();  // Generate a unique ID for the wagon
+
+        // Save the wagon data to Redis
+        $wagonData = [
+            'ilosc_miejsc' => $data['ilosc_miejsc'],
+            'predkosc_wagonu' => $data['predkosc_wagonu'],
+        ];
+
+        $this->coasterModel->addWagonToCoaster($coasterId, $wagonId, $wagonData);
+
+        return $this->respondCreated([
+            'message' => 'Wagon added successfully',
+            'wagonId' => $wagonId
+        ]);
+    }
+
+
+    // Get all wagons for a coaster
+    public function getWagons($coasterId)
+    {
+        // Get all wagon IDs for the given coaster
+        $wagonIds = $this->redis->smembers("coaster:$coasterId:wagons");
+
+        if (empty($wagonIds)) {
+            // Return an error if no wagons exist for the coaster
+            return $this->respond(['error' => 'No wagons found for this coaster'], 404);
+        }
+
+        // Retrieve each individual wagon using the ID
+        $wagons = [];
+        foreach ($wagonIds as $wagonId) {
+            $wagonData = $this->redis->get("coaster:$coasterId:wagon:$wagonId");
+            if ($wagonData) {
+                $wagons[] = json_decode($wagonData, true);
+            }
+        }
+
+        return $this->respond($wagons);
+    }
+
+    // Update a wagon for a coaster
+    public function updateWagon($coasterId, $wagonId, $wagonData)
+    {
+        // Ensure the wagon data is properly serialized into a string (JSON)
+        $jsonWagonData = json_encode($wagonData);
+
+        // Update the wagon data in Redis
+        $this->redis->set("coaster:$coasterId:wagon:$wagonId", $jsonWagonData);
+    }
+
+    // Delete a specific wagon for a coaster
+    public function deleteWagon($coasterId, $wagonId)
+    {
+        // Delete the individual wagon data
+        $this->redis->del("coaster:$coasterId:wagon:$wagonId");
+
+        // Optionally remove the wagon ID from the set of wagons for this coaster
+        $this->redis->srem("coaster:$coasterId:wagons", $wagonId);
+    }
 }
